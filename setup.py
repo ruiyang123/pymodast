@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import find_packages, setup
 
 setup(name='pymodast',
       version='0.1',
@@ -7,6 +7,6 @@ setup(name='pymodast',
       author='yang123',
       author_email='rui.yang.ecl@gmail.com',
       license='MIT',
-      packages=['pymodast'],
+      packages=find_packages(),
       zip_safe=False)
 
