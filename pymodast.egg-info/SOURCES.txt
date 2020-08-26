@@ -1,0 +1,7 @@
+setup.py
+pymodast/__init__.py
+pymodast.egg-info/PKG-INFO
+pymodast.egg-info/SOURCES.txt
+pymodast.egg-info/dependency_links.txt
+pymodast.egg-info/not-zip-safe
+pymodast.egg-info/top_level.txt
