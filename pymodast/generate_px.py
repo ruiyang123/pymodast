@@ -2,7 +2,7 @@ import openturns as ot
 import pandas as pd
 import numpy as np
 import os
-import utils
+from pymodast.utils import prepare_csv_for_2d, generate_px_2d, copy_file, get_inputs_from_aoc, get_inputs_from_csv, increase_domain
 
 
 def generate_px(variables, ranges, output_path, size=None, method="LHS", px_name=None):
@@ -75,11 +75,11 @@ def generate_px(variables, ranges, output_path, size=None, method="LHS", px_name
 
 
 def prepare_cases_2d(px_path, i2s_path, cas_path, output_path, iter_name="iter"):
-    utils.prepare_csv_for_2d(px_path, px_path, name=iter_name)
-    utils.generate_px_2d(i2s_path, px_path, output_path, sep=",", encoding="utf-8")
+    prepare_csv_for_2d(px_path, px_path, name=iter_name)
+    generate_px_2d(i2s_path, px_path, output_path, sep=",", encoding="utf-8")
     cas_folder = os.path.dirname(cas_path)
     cas_name = os.path.basename(cas_path)
-    utils.copy_file(cas_folder, output_path, cas_name)
+    copy_file(cas_folder, output_path, cas_name)
     return None
 
 
@@ -87,8 +87,8 @@ if __name__ == "__main__":
     # 1D
     # get inputs names and domains
     aoc_path = "./Etu_CE2016_Conc/Etu_CE2016.aoc.xml"
-    variables, ranges = utils.get_inputs_from_aoc(aoc_path)
-    ranges = utils.increase_domain(ranges)
+    variables, ranges = get_inputs_from_aoc(aoc_path)
+    ranges = increase_domain(ranges)
     size = 10 * len(variables)
     method = 'MinDist'
     output_path = "./CE/PX/"  # store output(DOE) format .csv
@@ -98,7 +98,7 @@ if __name__ == "__main__":
     # get inputs
     file_path = "./T2D_BV2016_6LE_19Fk/zones_frottement.csv"
     delimiter = ";"
-    variables, ranges = utils.get_inputs_from_csv(file_path, delimiter=delimiter)
+    variables, ranges = get_inputs_from_csv(file_path, delimiter=delimiter)
     # generate a DOE
     size = 190
     method = "MinDist"
