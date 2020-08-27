@@ -28,8 +28,8 @@ import seaborn as sns
 
 import time
 from tqdm import *
-import utils
-import meta_model
+from pymodast.utils import get_input_length, get_num_crue
+from pymodast.meta_model import kriging, multi_xgb
 
 
 def get_crue_names(dataset_path):
@@ -40,8 +40,8 @@ def get_crue_names(dataset_path):
         a list contains the name of crue
     '''
     dataset = pd.read_csv(dataset_path)
-    input_length = utils.get_input_length(dataset)
-    num_crue = utils.get_num_crue(dataset)
+    input_length = get_input_length(dataset)
+    num_crue = get_num_crue(dataset)
     col_names = dataset.columns
     inputs = col_names[0:input_length]
     outputs = col_names[input_length:]
@@ -66,7 +66,7 @@ def prepare_data(dataset_path):
     dataset = pd.read_csv(dataset_path)
     dataset = dataset.replace(0, np.nan)
     dataset = dataset.dropna(axis=0)
-    input_length = utils.get_input_length(dataset)
+    input_length = get_input_length(dataset)
 
     col_names = dataset.columns
     inputs = col_names[0:input_length]
@@ -127,9 +127,9 @@ def k_folder(X, Y, number_crue, k, method="kriging"):
         y_train, y_test = Y_norm[train_index], Y[test_index]
 
         if method == "kriging":
-            model = meta_model.kriging(X_train, y_train)
+            model = kriging(X_train, y_train)
         elif method == "xgboost":
-            model = meta_model.multi_xgb(X_train, y_train)
+            model = multi_xgb(X_train, y_train)
         else:
             print("wrong name for <methode>")
             return 0

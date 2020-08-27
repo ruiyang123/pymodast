@@ -29,33 +29,33 @@ import pyswarms as ps
 from pyswarms.utils.functions import single_obj as fx
 from pyswarms.utils.plotters import (plot_cost_history, plot_contour, plot_surface)
 
-import meta_model
-import validate
-import utils
-import generate_px
+from pymodast.meta_model import kriging, multi_xgb
+from pymodast.validate import prepare_data
+from pymodast.utils import get_inputs_from_aoc, get_observations_from_aoc
+from pymodast.generate_px import prepare_cases_2d
 
 
 def optimize(dataset_path, aoc_path, lhpt_path, method="kriging", n=None, output_path=None):
     base_folder = os.path.dirname(os.path.dirname(dataset_path))
-    variables, ranges = utils.get_inputs_from_aoc(aoc_path)
+    variables, ranges = get_inputs_from_aoc(aoc_path)
     if output_path == None:
         output_path = os.path.join(base_folder, "PX_opt_{}".format(method))
     if os.path.exists(output_path) == 0:
         os.mkdir(output_path)
     # prepare data
-    X, Y, inputs, outputs = validate.prepare_data(dataset_path)
+    X, Y, inputs, outputs = prepare_data(dataset_path)
     # Normalisation
     scaler = StandardScaler()
     scaler.fit(Y)
     Y_norm = scaler.transform(Y)
     # Define the meta-model
     if method == 'kriging':
-        model = meta_model.kriging(X, Y_norm)
+        model = kriging(X, Y_norm)
     elif method == 'xgboost':
-        model = meta_model.multi_xgb(X, Y_norm)
+        model = multi_xgb(X, Y_norm)
 
     # import observations from a excel file
-    dict_obs, data_obs = utils.get_observations_from_aoc(aoc_path, lhpt_path)
+    dict_obs, data_obs = get_observations_from_aoc(aoc_path, lhpt_path)
     observations = data_obs.values[0]
     obs_names = data_obs.columns
 
@@ -154,4 +154,4 @@ if __name__ == "__main__":
         cas_path = "./2D_BV2016_4LE_14Fk/t2d.cas"
         base_folder = os.path.dirname(os.path.dirname(px_opt_path))
         output_folder = os.path.join(base_folder,"PX_opt_{}/".format(method))
-        generate_px.prepare_cases_2d(px_opt_path, i2s_path, cas_path, output_folder)
+        prepare_cases_2d(px_opt_path, i2s_path, cas_path, output_folder)
