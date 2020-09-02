@@ -7,9 +7,9 @@ import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
 import re
 
-import meta_model
-import validate
-import utils
+from pymodast.meta_model import kriging, multi_xgb
+from pymodast.validate import prepare_data
+from pymodast.utils import get_observations_from_aoc
 
 
 def plot_opt(dataset_path, dataset_opt_path, aoc_path, lhpt_path, method="kriging", output_path=None):

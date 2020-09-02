@@ -19,13 +19,13 @@ from copy import deepcopy
 import numpy as np
 import pandas as pd
 import os
-import utils
-from params_run_simulation_ import *
+from pymodast.utils import get_targets_from_aoc
+from pymodast.params_run_simulation_ import *
 
-def generate_modifications(path_to_PX, etude, scenario):
+def generate_modifications(px_path, etude, scenario):
     """ Generate modifications listes for simulations
 
-    :param path_to_PX: str
+    :param px_path: str
         path to the experimental design
     :param etude : etude object
         a study of FudaaCrue (.etu)
@@ -34,11 +34,16 @@ def generate_modifications(path_to_PX, etude, scenario):
     :return: dict
         a dict contains the all the modifications
     """
-    samples = pd.read_csv(path_to_PX,index_col=0)
+    samples = pd.read_csv(px_path,index_col=0)
     print(samples)
     samples_array = samples.to_numpy()
     sample_size = len(samples)
-    variable_names = samples.columns
+    variable_names = []
+    for name in samples.columns:
+        if "Fk" not in name:
+            variable_names.append("Fk_"+ name)
+        else:
+            variable_names.append(name)
     modifications_liste = []
 
     for i in range(sample_size):
@@ -58,7 +63,7 @@ def generate_modifications(path_to_PX, etude, scenario):
 
 
 
-etude = Etude(path_to_Etude)
+etude = Etude(etude_path)
 etude.read_all()
 
 scenario = etude.get_scenario(scenario_name)
@@ -85,26 +90,33 @@ if __name__ == "__main__" :
         os.mkdir(output_path)
 
     # create a list consists of all file names of the file path.
-    for i, j, k in os.walk(path_to_PXs):
+    for i, j, k in os.walk(PXs_path):
         file_names = k
 
     # if you only want to run simulation for one single dataset you can define
     # file_names = [file_name]
     for file_name in file_names:
         print(file_name)
-        etude = Etude(path_to_Etude)
+        for a in file_name.split('_'):
+            if 'size' in a:
+                if "." in a.split('e')[1] :
+                    sample_size = int(a.split('e')[1].split(".")[0])
+                else :
+                    sample_size = int(a.split('e')[1])
+
+        etude = Etude(etude_path)
         etude.read_all()
 
         scenario = etude.get_scenario(scenario_name)
         scenario.remove_all_runs(sleep=1.0)
-        path_to_PX = os.path.join(path_to_PXs,file_name)
+        PX_path = os.path.join(PXs_path,file_name)
 
         # get methode name
-        for i in path_to_PX.split('_'):
-            if "methode" in i:
-                methode_name = i.split(".")[0]
+        for i in PX_path.split('_'):
+            if "method" in i:
+                method_name = i.split(".")[0]
             else:
-                methode_name = "opt"
+                method_name = "opt"
         # get PX number
         for i in file_name.split('_'):
             if "PX" in i:
@@ -117,19 +129,19 @@ if __name__ == "__main__" :
             #out_file_name = "dataset{}_size{}_{}.csv".format(px_number,sample_size, methode_name)
             out_file_name = file_name
         else:
-            out_file_name = "allSect_dataset_{}.csv".format(methode_name)
+            out_file_name = "allSect_dataset_size{}_{}.csv".format(sample_size, method_name)
         for a, b, c in os.walk(output_path):
             out_filenames = c
 
         if out_file_name not in out_filenames :
             if all_name == 0 :
-                targets = utils.get_targets_from_aoc(file_aoc,file_lhpt)
+                targets = utils.get_targets_from_aoc(aoc_path,lhpt_path)
             else :
                 targets = [get_all_sections_names(etude), ['Cc_P009_LE20160426', 'Cc_P012_LE20160202'], 'Z']
 
 
-            samples = pd.read_csv(path_to_PX, index_col=0)
-            modifications = generate_modifications(path_to_PX, etude, scenario)
+            samples = pd.read_csv(PX_path, index_col=0)
+            modifications = generate_modifications(PX_path, etude, scenario)
             runs_liste = launch_scenario_modifications(apply_modifications, modifications)
 
             #for run_id, run in enumerate(runs_liste):
@@ -168,6 +180,9 @@ if __name__ == "__main__" :
                     samples[target_name] = Z[:,i]
 
             samples.to_csv(os.path.join(output_path,out_file_name),index=False)
+
+
+
 
 
 
