@@ -114,6 +114,15 @@ def plot_opt(dataset_path, dataset_opt_path, aoc_path, lhpt_path, method="krigin
         rmse_df.to_excel(os.path.join(output_path, rmse_name), index=False)
         plt.suptitle("total_RMSE : {}".format(format(total_rmse, '.3g')))
         fig.savefig(os.path.join(output_path, plot_name))
+        
+    best_columns = []
+    for input_name in inputs :
+        best_columns.append(input_name)
+    best_columns.append("rmse")
+
+
+    best_df = pd.DataFrame([np.append(best_fk,best_rmse)],columns=best_columns)
+    best_df.to_excel(os.path.join(output_path, "best_config.xlsx"), index=False)
 
 
 if __name__ == "__main__":
